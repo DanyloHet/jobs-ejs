@@ -4,10 +4,8 @@ const storeLocals = (req, res, next) => {
   } else {
     res.locals.user = null;
   }
-  if (req._parsedOriginalUrl.path === "/") {
-    res.locals.info = req.flash("info");
-    res.locals.errors = req.flash("error");
-  }
+  res.locals.info = req.flash("info");
+  res.locals.errors = req.flash("error");
 
   next();
 };
