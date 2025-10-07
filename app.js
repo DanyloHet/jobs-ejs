@@ -1,1 +1,77 @@
-  
+const express = require("express");
+require("express-async-errors");
+require("dotenv").config();
+
+const app = express();
+
+
+const connectDB = require("./db/connect");
+connectDB(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("Error connecting to MongoDB:", err);
+    process.exit(1);
+  });
+
+app.set("view engine", "ejs");
+app.use(require("body-parser").urlencoded({ extended: true }));
+
+
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
+
+
+const store = new MongoDBStore({
+  uri: process.env.MONGO_URI,
+  collection: "mySessions",
+});
+
+store.on("error", function (error) {
+  console.log(error);
+});
+
+const sessionParams = {
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+  store: store,
+  cookie: { secure: false, sameSite: "strict" },
+};
+
+if (app.get("env") === "production") {
+  app.set("trust proxy", 1); // trust first proxy
+  sessionParams.cookie.secure = true; // serve secure cookies
+}
+
+app.use(session(sessionParams));
+app.use(require("connect-flash")());
+
+
+const secretWordRoutes = require("./routes/secretWordRoutes");
+app.use(secretWordRoutes);
+
+
+app.use((req, res) => {
+  res.status(404).send(`That page (${req.url}) was not found.`);
+});
+
+app.use((err, req, res, next) => {
+  res.status(500).send(err.message);
+  console.log(err);
+});
+
+const port = process.env.PORT || 3000;
+
+const start = async () => {
+  try {
+    app.listen(port, () =>
+      console.log(`Server is listening on port ${port}...`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start();
+
+
