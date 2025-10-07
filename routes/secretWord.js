@@ -1,6 +1,8 @@
-
 const express = require("express");
 const router = express.Router();
+const authMiddleware = require("../middleware/auth");
+
+router.use(authMiddleware);
 
 router.get("/secretWord", (req, res) => {
   if (!req.session.secretWord) {
@@ -13,7 +15,6 @@ router.get("/secretWord", (req, res) => {
 
 router.post("/secretWord", (req, res) => {
   const newSecretWord = req.body.secretWord;
-
   if (newSecretWord.toUpperCase()[0] === "P") {
     req.flash("error", "That word won't work!");
     req.flash("error", "You can't use words that start with 'P'.");
