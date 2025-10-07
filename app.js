@@ -4,7 +4,6 @@ require("dotenv").config();
 
 const app = express();
 
-
 const connectDB = require("./db/connect");
 connectDB(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
@@ -16,10 +15,8 @@ connectDB(process.env.MONGO_URI)
 app.set("view engine", "ejs");
 app.use(require("body-parser").urlencoded({ extended: true }));
 
-
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
-
 
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
@@ -45,11 +42,23 @@ if (app.get("env") === "production") {
 
 app.use(session(sessionParams));
 app.use(require("connect-flash")());
+const passport = require("passport");
+const passportInit = require("./passport/passportInit");
+
+passportInit();
+app.use(passport.initialize());
+app.use(passport.session());
 
 
+
+app.use(require("./middleware/storeLocals"));
+
+app.get("/", (req, res) => {
+  res.render("index");
+});
+app.use("/sessions", require("./routes/sessionRoutes"));
 const secretWordRoutes = require("./routes/secretWordRoutes");
 app.use(secretWordRoutes);
-
 
 app.use((req, res) => {
   res.status(404).send(`That page (${req.url}) was not found.`);
@@ -73,5 +82,3 @@ const start = async () => {
 };
 
 start();
-
-
