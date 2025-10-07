@@ -57,8 +57,8 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 app.use("/sessions", require("./routes/sessionRoutes"));
-const secretWordRoutes = require("./routes/secretWordRoutes");
-app.use(secretWordRoutes);
+const secretWord = require("./routes/secretWord");
+app.use(secretWord);
 
 app.use((req, res) => {
   res.status(404).send(`That page (${req.url}) was not found.`);
