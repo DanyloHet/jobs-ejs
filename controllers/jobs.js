@@ -3,11 +3,11 @@ const parseVErr = require("../utils/parseValidationErr");
 
 const listJobs = async (req, res) => {
   const jobs = await Job.find({ createdBy: req.user._id });
-  res.render("jobs", { jobs, _csrf: req.csrfToken() });
+  res.render("jobs", { jobs });
 };
 
 const showAddForm = (req, res) => {
-  res.render("job", { job: null, _csrf: req.csrfToken() });
+  res.render("job", { job: null });
 };
 
 const createJob = async (req, res) => {
@@ -16,14 +16,14 @@ const createJob = async (req, res) => {
     res.redirect("/jobs");
   } catch (e) {
     parseVErr(e, req);
-    res.render("job", { job: null, _csrf: req.csrfToken() });
+    res.render("job", { job: null });
   }
 };
 
 const showEditForm = async (req, res) => {
   const job = await Job.findOne({ _id: req.params.id, createdBy: req.user._id });
   if (!job) return res.redirect("/jobs");
-  res.render("job", { job, _csrf: req.csrfToken() });
+  res.render("job", { job });
 };
 
 const updateJob = async (req, res) => {
@@ -36,7 +36,7 @@ const updateJob = async (req, res) => {
   } catch (e) {
     parseVErr(e, req);
     const job = await Job.findById(req.params.id);
-    res.render("job", { job, _csrf: req.csrfToken() });
+    res.render("job", { job });
   }
 };
 
